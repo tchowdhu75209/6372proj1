@@ -21,3 +21,6 @@ class Status Country;
 model log_Life_expectancy = Adult_Mortality  Alcohol log_percentage_expenditure    log_under_five_deaths  Diphtheria log_HIV_AIDS  Income_composition_of_resources Schooling / solution ;
 output out = Customsel ;
 run;
+
+5) I think I should take 'Country' out of the model. What do you think?
+6) As part of the EDA, I think it'll be good to provide a histogram showing median Life expectancy by 'status'.
