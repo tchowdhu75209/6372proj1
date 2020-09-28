@@ -23,4 +23,7 @@ output out = Customsel ;
 run;
 
 5) I think I should take 'Country' out of the model. What do you think?
-6) As part of the EDA, I think it'll be good to provide a histogram showing median Life expectancy by 'status'.
+6) As part of the EDA, I think it'll be good to provide 
+i) a histogram showing median Life expectancy by 'status'.
+ii) Scatter plot of 'Life expectancy' and only the 'selected' variables.
+
