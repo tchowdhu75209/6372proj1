@@ -1,0 +1,23 @@
+1) I didn't worry much about the outliers or Missing values.
+
+2) Important observations- 
+i) infant_deaths and under_five_deaths are highly correlated at 0.9969. I used under_five_deaths for model fit.
+ii) thinness_5_9_years and thinness_1_19_years 0.9279;I used thinness_1_19_years for model fit.
+iii) GDP and %expenditure are highly correlated at 0.9593. I kept both the vairables during model selection. GDP was always kicked out.
+
+3) Transformations: Per my analysis, log transforms on the following variables made sense:
+Life_expectancy
+percentage_expenditure
+Measles
+under_five_deaths
+HIV_AIDS 
+Population
+
+4) Final Model: Stepwise selection gave me the the same CVpress and same model. I checked ASE plots and also partitioned the data keeping 50% test data. 
+
+PROC GLM DATA= LED plots = all; 
+title "Custom Model WITH VARIABLES SELECTED FROM stepwise SELECTION "; 
+class Status Country;
+model log_Life_expectancy = Adult_Mortality  Alcohol log_percentage_expenditure    log_under_five_deaths  Diphtheria log_HIV_AIDS  Income_composition_of_resources Schooling / solution ;
+output out = Customsel ;
+run;
