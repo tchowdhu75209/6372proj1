@@ -125,5 +125,17 @@ regcleandata <- lm(Log(`Life expectancy`)~., data = cleanData)
 summary(regcleandata)
 
 #Explanatory variables with significance : Country, Year, Infant Deaths, Alcohol, Under-Five Deaths, HIV, Thinness5-9, Schooling
+#Regression
+regcleandata <- lm(Log(`Life expectancy`)~., data = cleanData)
+summary(regcleandata)
+vif(reg1)
 
+
+
+resp <- log(cleanData$`Life expectancy`)
+
+
+backwardreg <- lm(log(`Life expectancy`)~ Country + Year + `infant deaths` + Alcohol + `under-five deaths` + `HIV/AIDS` + `thinness 5-9 years`  + Schooling, data = cleanData)
+
+stepwise<-step(backwardreg, direction = "both")
 ```
