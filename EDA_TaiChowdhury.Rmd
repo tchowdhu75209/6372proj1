@@ -117,3 +117,13 @@ pairs(resdata6)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+#Regresion 
+
+```{r pressure, echo=FALSE}
+regcleandata <- lm(Log(`Life expectancy`)~., data = cleanData)
+summary(regcleandata)
+
+#Explanatory variables with significance : Country, Year, Infant Deaths, Alcohol, Under-Five Deaths, HIV, Thinness5-9, Schooling
+
+```
