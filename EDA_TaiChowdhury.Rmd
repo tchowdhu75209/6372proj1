@@ -1,0 +1,119 @@
+---
+title: "EDA_TaiChowdhury"
+author: "Tai"
+date: "9/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(naniar)
+library(ggplot2)
+library(corrplot)
+library(dplyr)
+library(caret)
+library(funModeling)
+library(tidyverse) 
+library(Hmisc)
+library(mice)
+library(randomForest)
+library(glmnet)
+library(data.table)
+library(Matrix)
+library(caret)
+library(mltools)
+```
+
+
+```{r cars}
+Summary(proj1data)
+str(proj1data) #total of 2938 obs
+```
+
+#Clean up dataset - identify missing data
+
+```{r pressure, echo=FALSE}
+
+sapply(proj1data, function(x) sum(is.na(x)))
+
+cleanData = proj1data %>% filter(!is.na(proj1data$`Life expectancy`) & !is.na(proj1data$`Adult Mortality`)
+                                 & !is.na(proj1data$`Alcohol`)& !is.na(proj1data$`Hepatitis B`)
+                                 & !is.na(proj1data$`BMI`)& !is.na(proj1data$`Adult Mortality`)
+                                 & !is.na(proj1data$`Polio`)& !is.na(proj1data$`Total expenditure`)
+                                 & !is.na(proj1data$`Diphtheria`)& !is.na(proj1data$`GDP`)
+                                 & !is.na(proj1data$`Population`)& !is.na(proj1data$`thinness  1-19 years`)
+                                 & !is.na(proj1data$`thinness 5-9 years`)& !is.na(proj1data$`Income composition of resources`)
+                                 & !is.na(proj1data$Schooling)
+
+str(cleanData)
+summary(cleanData)
+```
+
+#EDA
+1. Correlations 
+
+```{r pressure, echo=FALSE}
+corrdata <- data.frame(cleanData$`Life expectancy`, cleanData$`Adult Mortality`, cleanData$Alcohol,cleanData$`Hepatitis B`,
+                       cleanData$`BMI`,cleanData$`Adult Mortality`,cleanData$`Polio`,cleanData$`Total expenditure`,
+                       cleanData$`Diphtheria`,cleanData$`GDP`,cleanData$`Population`, cleanData$`under-five deaths`,
+                       cleanData$`Population`, cleanData$`thinness 5-9 years`,cleanData$`thinness  1-19 years`,
+                       cleanData$`thinness 5-9 years`,cleanData$`Income composition of resources`,cleanData$Schooling )
+
+
+corrdata1 <- data.frame(cleanData$`Life expectancy`, cleanData$`Adult Mortality`, cleanData$Alcohol,cleanData$`Hepatitis B`,
+                       cleanData$`BMI`,cleanData$`Adult Mortality`)
+                       
+
+corrdata2 <- data.frame(cleanData$`Life expectancy`, cleanData$`Polio`,cleanData$`Total expenditure`,
+                                               cleanData$`Diphtheria`,cleanData$`GDP`,cleanData$`Population`, cleanData$`under-five deaths`)
+                        
+corrdata3 <- data.frame(cleanData$`Life expectancy`, cleanData$`Population`, cleanData$`thinness 5-9 years`,cleanData$`thinness  1-19 years`,
+                        cleanData$`thinness 5-9 years`,cleanData$`Income composition of resources`, cleanData$Schooling )                                                                   
+                       
+res1 <- cor(corrdata1)
+round(res1, 2)
+resdata1 <-round(res1, 2)
+
+res2 <- cor(corrdata2)
+round(res2, 2)
+resdata2 <-round(res2, 2)
+
+res3 <- cor(corrdata3)
+round(res3, 2)
+resdata3 <-round(res3, 2)
+
+
+pairs(resdata1)
+pairs(resdata2)
+pairs(resdata3)
+
+
+corrdata4 <- data.frame(log(cleanData$`Life expectancy`), cleanData$`Adult Mortality`, cleanData$Alcohol,cleanData$`Hepatitis B`,
+                        cleanData$`BMI`,cleanData$`Adult Mortality`)
+
+
+corrdata5 <- data.frame(log(cleanData$`Life expectancy`), cleanData$`Polio`,cleanData$`Total expenditure`,
+                        cleanData$`Diphtheria`,cleanData$`GDP`,cleanData$`Population`, cleanData$`under-five deaths`)
+
+corrdata6 <- data.frame(log(cleanData$`Life expectancy`), cleanData$`Population`, cleanData$`thinness 5-9 years`,cleanData$`thinness  1-19 years`,
+                        cleanData$`thinness 5-9 years`,cleanData$`Income composition of resources`, cleanData$Schooling )                                                                   
+
+res4 <- cor(corrdata4)
+round(res4, 2)
+resdata4 <-round(res1, 2)
+
+res5 <- cor(corrdata5)
+round(res5, 2)
+resdata5 <-round(res5, 2)
+
+res6 <- cor(corrdata6)
+round(res6, 2)
+resdata6 <-round(res6, 2)
+
+
+pairs(resdata4)
+pairs(resdata5)
+pairs(resdata6)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
