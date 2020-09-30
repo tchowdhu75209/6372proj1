@@ -27,3 +27,11 @@ run;
 i) a histogram showing median Life expectancy by 'status'.
 ii) Scatter plot of 'Life expectancy' and only the 'selected' variables.
 
+6) knn
+I am getting error in KNN code while trying to create the confusion matrix (line iii):
+  i)  knn1 <- knn(train_data[,3:Number_of_Cols],test_data[,3:Number_of_Cols],train_data$Attrition, k=i )#ERROR if data not normalized
+    ii)t_knn <- table(knn1, test_data$Attrition)
+    iii) CM_knn <- confusionMatrix(t_knn)
+    #Capture Accuracy
+    #ACC <- CM_knn$overall[1]
+    Acc[seed,i] = CM_knn$overall[1]
