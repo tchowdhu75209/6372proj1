@@ -22,6 +22,11 @@ library(data.table)
 library(Matrix)
 library(caret)
 library(mltools)
+library(pROC)
+library(mlbench)
+
+install.packages("pROC")
+install.packages("mlbench")
 ```
 
 
@@ -138,4 +143,39 @@ resp <- log(cleanData$`Life expectancy`)
 backwardreg <- lm(log(`Life expectancy`)~ Country + Year + `infant deaths` + Alcohol + `under-five deaths` + `HIV/AIDS` + `thinness 5-9 years`  + Schooling, data = cleanData)
 
 stepwise<-step(backwardreg, direction = "both")
+```
+
+#Split data into training test data sets
+
+```{r pressure, echo=FALSE}
+trainIndices =  sample(seq(1:length(cleanData$`Life expectancy`)), round(.7*length(cleanData$`Life expectancy`)))
+trainLED = cleanData[trainIndices,]
+testLED = cleanData[-trainIndices,]
+
+set.seed(222)
+Fit<- train(`Life expectancy`~.,
+            data=trainLED,
+            method = 'knn',
+            tunelength = 20,
+            preProc = c("center", "scale"))
+Fit  
+
+#k-Nearest Neighbors 
+
+#  1154 samples
+#   21 predictor
+
+#Pre-processing: centered (152), scaled (152) 
+#Resampling: Bootstrapped (25 reps) 
+#Summary of sample sizes: 1154, 1154, 1154, 1154, 1154, 1154, ... 
+#Resampling results across tuning parameters:
+
+#  k  RMSE      Rsquared   MAE     
+#  5  3.208227  0.8736451  2.063915
+#  7  3.840090  0.8294739  2.575608
+#  9  4.482173  0.7868875  3.195811
+
+#RMSE was used to select the optimal model using the smallest value.
+#The final value used for the model was k = 5.
+
 ```
