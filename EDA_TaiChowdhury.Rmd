@@ -160,7 +160,7 @@ Fit<- train(`Life expectancy`~.,
             preProc = c("center", "scale"))
 Fit  
 
-#k-Nearest Neighbors 
+#RESULT: k-Nearest Neighbors 
 
 #  1154 samples
 #   21 predictor
@@ -177,5 +177,27 @@ Fit
 
 #RMSE was used to select the optimal model using the smallest value.
 #The final value used for the model was k = 5.
+
+```
+
+#Cross Validation
+
+```{r pressure, echo=FALSE}
+#LOOCV
+
+Model = glm(`Life expectancy`~Schooling, data= cleanData)
+
+MSE_LOOCV = cv.glm(cleanData, Model)
+
+MSE_LOOCV$delta
+
+
+cv.error = rep (0,10)
+for (i in 1:10)
+{Model = glm(`Life expectancy`~poly(Schooling, i), data= cleanData)
+cv.error[i]=cv.glm(cleanData, Model)$delta[1]}
+cv.error
+
+plot(1:10,cv.error)
 
 ```
