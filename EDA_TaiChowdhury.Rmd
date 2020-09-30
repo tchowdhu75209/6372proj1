@@ -48,7 +48,7 @@ cleanData = proj1data %>% filter(!is.na(proj1data$`Life expectancy`) & !is.na(pr
                                  & !is.na(proj1data$`Diphtheria`)& !is.na(proj1data$`GDP`)
                                  & !is.na(proj1data$`Population`)& !is.na(proj1data$`thinness  1-19 years`)
                                  & !is.na(proj1data$`thinness 5-9 years`)& !is.na(proj1data$`Income composition of resources`)
-                                 & !is.na(proj1data$Schooling)
+                                 & !is.na(proj1data$Schooling))
 
 str(cleanData)
 summary(cleanData)
@@ -148,17 +148,19 @@ stepwise<-step(backwardreg, direction = "both")
 #Split data into training test data sets
 
 ```{r pressure, echo=FALSE}
+trControl <- trainControl(method = "LOOCV", number = 10)
 trainIndices =  sample(seq(1:length(cleanData$`Life expectancy`)), round(.7*length(cleanData$`Life expectancy`)))
 trainLED = cleanData[trainIndices,]
 testLED = cleanData[-trainIndices,]
 
 set.seed(222)
-Fit<- train(`Life expectancy`~.,
+Fit<- train(Status~.,
             data=trainLED,
             method = 'knn',
             tunelength = 20,
+            trControl = trControl,
             preProc = c("center", "scale"))
-Fit  
+Fit   
 
 #RESULT: k-Nearest Neighbors 
 
@@ -171,9 +173,9 @@ Fit
 #Resampling results across tuning parameters:
 
 #  k  RMSE      Rsquared   MAE     
-#  5  3.208227  0.8736451  2.063915
-#  7  3.840090  0.8294739  2.575608
-#  9  4.482173  0.7868875  3.195811
+#  5  2.374279  0.9291014  1.463024
+#  7  2.816553  0.9016194  1.780684
+#  9  3.485628  0.8617998  2.377731
 
 #RMSE was used to select the optimal model using the smallest value.
 #The final value used for the model was k = 5.
