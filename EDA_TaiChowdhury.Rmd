@@ -52,6 +52,7 @@ cleanData = proj1data %>% filter(!is.na(proj1data$`Life expectancy`) & !is.na(pr
 
 str(cleanData)
 summary(cleanData)
+cleanData$Country
 ```
 
 #EDA
@@ -201,5 +202,23 @@ cv.error[i]=cv.glm(cleanData, Model)$delta[1]}
 cv.error
 
 plot(1:10,cv.error)
+
+#filterData = cleanData %>% filter(grepl("Developing", Status) | grepl("Developed", Status))
+filterData$Status[grepl("Developing", filterData$Status)] = "Developing"
+filterData$Status[grepl("Developed", filterData$Status)] = "Developed"
+filterData$Status = as.factor(filterData$Status)
+
+str(filterData)
+
+set.seed(222)
+trainIndices =  sample(seq(1:length(filterData$Status)), round(.7*length(filterData$Status)))
+trainLED = filterData[trainIndices,]
+testLED = filterData[-trainIndices,]
+
+
+classifications = knn(trainLED[,c(4,5)],testLED[,c(4,5)],trainLED$Status, prob = TRUE, k = 5)
+table(testLED$Status,classifications)
+CM = confusionMatrix(table(testLED$Status,classifications))
+CM
 
 ```
