@@ -1,0 +1,250 @@
+install.packages("corrplot")
+install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("VIF")
+install.packages("car")
+install.packages("leaps")
+install.packages("tree")
+install.packages("knitr")
+install.packages("rmarkdown")
+library(ggplot2)
+library(tidyverse)
+library(VIF)
+library(car)
+library(leaps)
+library(tree)
+library(knitr)
+library(rmarkdown)
+
+####### IMPORT DATASET #######
+data = read.table("C:/Users/senth/Downloads/MSDS_6372_Life_Exp_Proj/Life_Expectancy_Data_raw.csv", header=TRUE, sep=",")
+attach(data)
+
+#display first 6 rows
+head(data)
+#check structure of data
+str(data)
+
+#rename variable names
+names(data)[c(4,5,6,8,9,12,14,16,19,20,21)]<-c("Life_expectancy","Adult_Mortality","Infant_deaths",
+                                               "Percentage_expenditure","Hepatitis_B","Under_5_deaths",
+                                               "Total_expenditure","HIV_AIDS","Thinness_1_to_19_yrs","Thinness_5_to_9_yrs",
+                                               "Income_composition_of_resources")
+
+#check summary of data
+summary(data)
+
+#keeping original data safe
+data1<-data
+
+#display no. of missing values column wise in decreasing order
+sort(colSums(is.na(data1)),decreasing = TRUE)
+
+#replace missing values with mean
+
+data1$Life_expectancy[is.na(data1$Life_expectancy)]<-mean(data1$Life_expectancy,na.rm=T)
+data1$Adult_Mortality[is.na(data1$Adult_Mortality)]<-mean(data1$Adult_Mortality,na.rm=T)
+data1$Alcohol[is.na(data1$Alcohol)]<-mean(data1$Alcohol,na.rm=T)
+data1$Hepatitis_B[is.na(data1$Hepatitis_B)]<-mean(data1$Hepatitis_B,na.rm=T)
+data1$BMI[is.na(data1$BMI)]<-mean(data1$BMI,na.rm=T)
+data1$Polio[is.na(data1$Polio)]<-mean(data1$Polio,na.rm=T)
+data1$Total_expenditure[is.na(data1$Total_expenditure)]<-mean(data1$Total_expenditure,na.rm=T)
+data1$Diphtheria[is.na(data1$Diphtheria)]<-mean(data1$Diphtheria,na.rm=T)
+data1$GDP[is.na(data1$GDP)]<-mean(data1$GDP,na.rm=T)
+data1$Population[is.na(data1$Population)]<-mean(data1$Population,na.rm=T)
+data1$Thinness_1_to_19_yrs[is.na(data1$Thinness_1_to_19_yrs)]<-mean(data1$Thinness_1_to_19_yrs,na.rm=T)
+data1$Thinness_5_to_9_yrs[is.na(data1$Thinness_5_to_9_yrs)]<-mean(data1$Thinness_5_to_9_yrs,na.rm=T)
+data1$Income_composition_of_resources[is.na(data1$Income_composition_of_resources)]<-mean(data1$Income_composition_of_resources,na.rm=T)
+data1$Schooling[is.na(data1$Schooling)]<-mean(data1$Schooling,na.rm=T)
+
+#check for any missing value column wise
+colSums(is.na(data1))
+
+#Analyze data
+
+#display dimensions of data
+dim(data1)
+#list type of each variable
+sapply(data1,class)
+
+#checking distribution of variables
+table(data1$Status)
+table(data1$Year)
+head(table(data1$Country))
+
+#check correlation between different variables
+cor(data1[,4:22])
+library(corrplot)
+M <- cor(data1[,4:22])
+
+#pdf("C:/Users/senth/Downloads/test2.pdf", height=10, width=10)
+#corrplot(cor(data1[,4:22]))
+
+pdf("C:/Users/senth/Downloads/test.pdf", height=10, width=10)
+corrplot(M, type = "upper", tl.pos = "td",
+         method = "circle", tl.cex = 0.5, tl.col = 'black',
+         order = "hclust", diag = FALSE)
+dev.off()
+
+#Visualize data
+
+#check distribution of dependent variable i.e. Life.expectancy-histogram
+hist(data1[,4], main="Histogram of Life expectancy")
+
+#check distribution of independent variables-density plot
+
+par(mar=c(1,1,1,1))
+par(mfrow=c(3,6))
+for(i in 5:22){
+  hist(data1[,i],main=names(data1)[i],ylab = "Frequency",
+       xlab=paste("",names(data1)[i]))
+}
+
+#Scatterplot of independent vriables against Life expectancy
+par(mfrow=c(3,6))
+for(i in 5:22){
+  plot(data1[,i],data1$Life.expectancy,xlab=paste("",names(data1)[i]),
+       ylab="Life expectancy")
+}
+
+#developed vs developing countries 
+
+p= ggplot(data1, 
+          aes(x = Status, 
+              y = Life_expectancy)) +
+  geom_boxplot(fill=c('#56B4E9', "darkorange"), color="blue") 
+
+
+p + theme_bw() 
+
+
+#####1. Analyze the relationship between health care expenditure and 
+#####life expectancy
+plot(data1$Total_expenditure, data1$Life_expectancy,
+     xlab = "Total Expenditure", ylab = "Life Expectancy", pch = 19, col="black")
+
+#### Separating developed and developing countries
+developingdata= subset(data1, Status == "Developing")
+plot(developingdata$Total_expenditure, developingdata$Life_expectancy,
+     xlab = "Developing Tot Expenditure", ylab = "Life Expectancy", pch = 19, col="darkorange")
+
+developeddata= subset(data1, Status == "Developed")
+plot(developeddata$Total_expenditure, developeddata$Life_expectancy,
+     xlab = "Developed Tot Expenditure", ylab = "Life Expectancy", pch = 19, col="#56B4E9")
+
+#check the correlation 
+cor.test(data1$Total_expenditure,data1$Life_expectancy)
+
+#run a linear model
+mod=lm(data1$Life_expectancy~data1$Total_expenditure)
+summary(mod)
+
+summary(mod$residuals)
+par(mfcol = c(2, 2))
+qqnorm(scale(mod$residuals))
+hist(scale(mod$residuals))
+boxplot(scale(mod$residuals))
+plot(data1$Total_expenditure,scale(mod$residuals))
+plot(mod)
+
+#run a linear-log model
+data1$log_expenditure=log(data1$Total_expenditure)
+mod2= lm(data1$Life_expectancy ~ data1$log_expenditure)
+summary(mod2)
+
+
+#run a plynomial model
+#quadratic
+mod3= lm(data1$Life_expectancy~poly(data1$Total_expenditure,2))
+summary(mod3)
+
+mod4= lm(data$Life_expectancy~poly(data1$Total_expenditure,3))
+summary(mod4)
+
+
+#plot results
+plot(data1$Total_expenditure,data1$Life_expectancy)
+x=0:2913
+y1=predict(mod,list(Total_expenditure=x))
+y2=predict(mod2,list(log_expenditure=log(x)))
+y3=predict(mod3,list(Total_expenditure=x))
+y4=predict(mod4, list(Total_expenditure=x))
+
+
+lines(x,y1,col="red", lwd=2)
+lines(x,y2,col="blue", lwd=3)
+lines(x,y3,col="green", lwd=2)
+lines(x,y4, col="grey", lwd=3)
+
+
+legend(x = "bottomright",
+       col = c("red", "blue", "green", "grey", "orange"), lty = 1:2, lwd = 1,cex=0.8,
+       legend = c('Linear', 'Linear-Log', 'Quadratic', 'Cubic', "Spline"))
+
+#smooth spline
+spl=smooth.spline(data1$Total_expenditure,data1$Life_expectancy,cv=TRUE)
+lines(spl,col="darkorange",lwd=3)
+spl
+
+#2. Does lifestyle affect life expectancy? (Alcohol, Schooling, BMI)
+#linear model 
+mod5= lm(data1$Life_expectancy~ Alcohol)
+summary(mod5)
+
+mod6= lm(data1$Life_expectancy~Alcohol+Schooling+BMI)
+summary(mod6)
+layout(matrix(c(1,2,3,4),2,2)) 
+plot(mod6)
+vif(mod6)
+sqrt(vif(mod6))>1.5
+
+mod7= lm(data1$Life_expectancy~Schooling+BMI)
+summary(mod7)
+layout(matrix(c(1,2,3,4),2,2)) 
+plot(mod7)
+vif(mod7)
+sqrt(vif(mod7))>1.5
+
+
+#3.predicting variables actually affecting the life expectancy?
+
+#linear model
+mod8= lm(data1$Life_expectancy~. -Country-log_expenditure, data=data1)
+summary(mod8)
+par(mfcol = c(2, 2))
+plot(mod8)
+vif(mod8)
+sqrt(vif(mod8))>1.5
+
+
+#linear regression with 14 variables
+data1
+mod11= lm(data1$Life_expectancy~. -Country-log_expenditure-Alcohol
+          -Percentage_expenditure-Thinness_5_to_9_yrs, data=data1)
+model_sum=summary(mod11)
+par(mfcol = c(2, 2))
+model_sum
+plot(mod11)
+vif(mod11)
+sqrt(vif(mod11))>1.5
+
+mod11_mse= mean(model_sum$residuals^2)
+mod11_mse
+
+#simple tree using the train/test approach 70-30% split
+library(tree)
+set.seed(3)
+train=sample(1:nrow(data1), 2039)
+simple.tree=tree(Life.expectancy~. -Country-log_expenditure, subset = train, data = data1)
+summary(simple.tree)
+plot(simple.tree)
+text(simple.tree, pretty=10)
+
+#cross validation
+cv.simple.tree= cv.tree(simple.tree)
+plot(cv.simple.tree$size, cv.simple.tree$dev, type="b")
+
+y_pred=predict(simple.tree, newdata=data1[-train,])
+life.test=data1[-train, "Life_expectancy"]
+plot(y_pred, life.test)
+abline(0,1)
